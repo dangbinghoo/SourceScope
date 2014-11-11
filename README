@@ -1,0 +1,27 @@
+
+Seascope-ng is a GUI frontend for cscope, idutils and ctags.
+
+Note:
+  Seascope-ng was based from Seascope(with revision 254662146ee8). 
+I cloned this project due to it's poor support with editing and 
+syntax higlighting and lacking of many features.
+
+
+Plans:
+
+   * use kate for editing and systax high-lighting on linux.
+   * add fake-vi to qscintilla and use it as a fall-back to kate.
+   * better source browsing like source-insight and slickedit
+   * cross-platform support
+
+
+* Running the application
+	cd src
+	python Seascope.py
+
+* Generating source distribution package
+	python setup.py sdist
+
+* Generating RPM distribution package
+	python setup.py bdist_rpm
+
