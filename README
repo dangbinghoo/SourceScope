@@ -11,6 +11,8 @@ Plans:
 
    * use kate for editing and systax high-lighting on linux.
    * add fake-vi to qscintilla and use it as a fall-back to kate.
+   * unified project creating, seprate project files from SRC dir.
+   * file browsing dialog setup SRC dir as top.
    * better source browsing like source-insight and slickedit
    * cross-platform support
 

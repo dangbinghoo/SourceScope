@@ -144,7 +144,7 @@ class FileTab(QWidget):
 		self.lview.setColumnCount(2)
 		self.lview.setHeaderLabels(['File', 'Path'])
 		self.lview.setFont(QFont("San Serif", 8))
-		self.lview.setIndentation(-2)
+		#self.lview.setIndentation(-2)
 		self.lview.setAllColumnsShowFocus(True)
 
 		lvlay = QVBoxLayout()
@@ -202,7 +202,7 @@ class FileTab(QWidget):
 			self.is_rel_path = True
 		for f in flist:
 			if self.is_rel_path:
-				f =  f.replace(dir_prefix, "...", 1)
+				f =  f.replace(dir_prefix, "TOP", 1)
 			item = QTreeWidgetItem([os.path.basename(f), f])
 			self.lview.addTopLevelItem(item)
 			#if (self.lview.topLevelItemCount() > 0):
@@ -217,8 +217,9 @@ class FileTree(QTabWidget):
 	def __init__(self, parent=None):
 		QTabWidget.__init__(self)
 		
+		self.setTabPosition(QTabWidget.South)
 		self.setMovable(True)
-
+		
 		t = FileTab()
 		icon = QApplication.style().standardIcon(QStyle.SP_FileDialogDetailedView)
 		self.addTab(t, icon, '')

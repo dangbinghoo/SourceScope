@@ -13,6 +13,9 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from EdView import *
+from EdPage import *
+from EdBook import *
+
 
 # inherit from EditView, add editing support.
 class EditorViewRW(EditorView):

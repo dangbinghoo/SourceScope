@@ -25,7 +25,7 @@ if __name__ == '__main__':
 	usage = "usage: %prog [options] [project_path ...]"
 	op = optparse.OptionParser(usage=usage)
 	op.add_option("-H", "--host", dest="host",             default="127.0.0.1", help="Host")
-	op.add_option("-P", "--port", dest="port", type='int', default=8650,        help="Port")
+	op.add_option("-P", "--port", dest="port", type='int', default=8080,        help="Port")
 	(options, args) = op.parse_args()
 
 	if options.port > 65535:

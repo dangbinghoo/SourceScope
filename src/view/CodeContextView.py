@@ -13,7 +13,7 @@ from PyQt4 import QtGui
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from EdView import EditorView
+from EdViewSci import EditorView
 
 # code context view
 class ContextEditorView(EditorView):

@@ -21,7 +21,7 @@ try:
 	from PyQt4.QtGui import *
 	from PyQt4.QtCore import *
 	from PyQt4 import uic
-	from view import EdView, EdViewRW, ResView, FileView, CallView, ClassGraphView, FileFuncGraphView
+	from view import EdView, EdBook, EdPage, EdViewRW, ResView, FileView, CallView, ClassGraphView, FileFuncGraphView
 	from view import DebugView, CodemarkView, CodeContextView
 	from view import ProjectUi
 	import backend
@@ -958,8 +958,11 @@ class SeascopeApp(QMainWindow):
 		self.vsp.addWidget(self.hsp)
 		self.vsp.addWidget(self.res_book)
 		self.hsp_res = QSplitter();
-		self.hsp_res.addWidget(self.res_book)
+		
+		
 		self.hsp_res.addWidget(self.code_ctx_view)
+		self.hsp_res.addWidget(self.res_book)
+
 		self.vsp.addWidget(self.hsp_res)
 		
 		self.hsp_res.setSizes([200, 1])
@@ -987,7 +990,7 @@ class SeascopeApp(QMainWindow):
 		if self.inner_editing:
 			self.edit_book = EdViewRW.EditorBookRW()
 		else:
-			self.edit_book = EdView.EditorBook()
+			self.edit_book = EdBook.EditorBook()
 
 		self.res_book  = ResView.ResultManager()
 		self.file_view = FileView.FileTree()
