@@ -9,6 +9,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 import CtagsManager
+import TagListXPM
 
 # Search Result
 class SR:
@@ -34,6 +35,11 @@ class CtagsListItem(QTreeWidgetItem):
 			brush = self.foreground(0)
 			brush.setColor(Qt.gray)
 			self.setForeground(0, brush)
+		key = li[2]
+		if not TagListXPM.TglstXPMDict.has_key(key):
+			key = 'unknown'
+		pixmap = TagListXPM.TglstXPMDict[key]
+		self.setIcon(0, QIcon(QPixmap(pixmap)))
 
 	def set_bold(self):
 		f = self.font(0)
@@ -70,7 +76,6 @@ class CtagsList(QTreeWidget):
 			item = CtagsListItem(line)
 			self.addTopLevelItem(item)
 		#self.sortItems(1, Qt.AscendingOrder)
-		#self.resizeColumnsToContents(1)
 		self.resizeColumnToContents(0)
 		self.resizeColumnToContents(1)
 		self.resizeColumnToContents(2)
@@ -97,7 +102,6 @@ class CtagsList(QTreeWidget):
 		self.recurseTreeAdd(res, p)
 
 		#self.sortItems(1, Qt.AscendingOrder)
-		#self.resizeColumnsToContents(1)
 		self.resizeColumnToContents(0)
 		self.resizeColumnToContents(1)
 		self.resizeColumnToContents(2)
@@ -196,10 +200,15 @@ class CtagsListPage(QWidget):
 
 	def __init__(self, parent=None):
 		QWidget.__init__(self)
+		self.hbox = QHBoxLayout()
+		self.slable = QLabel("Search")
 		self.le = QLineEdit()
+		self.hbox.addWidget(self.slable)
+		self.hbox.addWidget(self.le)
+		
 		self.ct = CtagsList(self)
 		vlay = QVBoxLayout()
-		vlay.addWidget(self.le)
+		vlay.addLayout(self.hbox)
 		vlay.addWidget(self.ct)
 		self.setLayout(vlay)
 
@@ -237,7 +246,7 @@ class CtagsListPage(QWidget):
 		page = CtagsListPage(parent)
 		res = CtagsManager.ct_query(filename)
 		page.ct.add_ct_result(res)
-		parent.add_page(page, 'C')
+		parent.add_page(page, 'TagLists')
 		parent.sig_ed_cursor_changed.connect(page.ct.ed_cursor_changed)
 
 class CtagsTreePage(QWidget):
@@ -266,7 +275,7 @@ class CtagsTreePage(QWidget):
 			return
 		page = CtagsTreePage(parent)
 		page.ct.add_ctree_result(res)
-		parent.add_page(page, 'T')
+		parent.add_page(page, 'TagTree')
 		parent.sig_ed_cursor_changed.connect(page.ct.search_tree)
 
 def run(filename, parent):

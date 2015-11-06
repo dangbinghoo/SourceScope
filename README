@@ -1,10 +1,12 @@
 
-Seascope-ng is a GUI frontend for cscope, idutils and ctags.
+          SourceScope Project
+
+SourceScope(seascope-ng) is a GUI frontend for cscope, idutils and ctags.
 
 Note:
-  Seascope-ng was based from Seascope(with revision 254662146ee8). 
-I cloned this project due to it's poor support with editing and 
-syntax higlighting and lacking of many features.
+  SourceScope(seascope-ng) was based from Seascope(with revision 254662146ee8). 
+  I cloned this project due to it's poor support with editing and 
+  syntax higlighting and lacking of many features.
 
 
 Plans:

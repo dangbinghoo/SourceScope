@@ -23,7 +23,8 @@ class EditorPage(QSplitter):
 		self.ev = self.new_editor_view()
 		self.addWidget(self.fcv)
 		self.addWidget(self.ev)
-		self.setSizes([1, 300])
+		# taglist and edit view.
+		self.setSizes([1, 650])
 
 		self.ev.cursorPositionChanged.connect(self.fcv.sig_ed_cursor_changed)
 		self.fcv.sig_goto_line.connect(self.ev.goto_line)

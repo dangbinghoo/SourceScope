@@ -137,7 +137,7 @@ class CtagsTreeBuilder:
 		if '*' not in t:
 			t['*'] = []
 		t['*'].append(cline)
-		#print '...', t, line
+		#print '>>>>...', t, line
 
 	def buildTree(self, data):
 		type_list = [ 'namespace', 'class', 'interface', 'struct', 'union', 'enum', 'function' ]

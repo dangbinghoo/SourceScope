@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=SourceScope
+Comment=A multi-platform multi-language source code editing tool
+Exec=/run/media/playpeng/Dev/CodeWorkSpace/Seascope/seascope-ng-git/src/SourceScope.py
+Icon=SourceScope
+Terminal=false
+StartupNotify=false
+Categories=Application;Development;

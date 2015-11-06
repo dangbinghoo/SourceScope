@@ -88,9 +88,11 @@ class codeResultView(QTextBrowser):
 		linen = int(urlinfo[1])
 		self.sig_result_view_openfile.emit(fname, int(linen))
 	
+	#
+	# NOTE: Don't remove this!
+	# overload this method to prevent anchor-click reload the source file.
 	def setSource(self, qurl):
-		self.setText('')
-		self.anchorClicked.disconnect(self.anchorClicked_ev)
+		pass
 
 # contextView Page
 class CodeContextViewPage(QFrame):
@@ -126,65 +128,50 @@ class CodeContextViewPage(QFrame):
 		cv.show()
 
 # ContextView Manager
-class CodeContextViewManager(QTabWidget):
+class CodeContextViewManager(CodeContextViewPage):
 	sig_codecontext_showfile = pyqtSignal(str, int)
-	def __init__(self, *args):
-		apply(QTabWidget.__init__,(self, ) + args)
-		self.setMovable(True)
-		self.setTabsClosable(True)
-		self.newContextViewPage()
+	def __init__(self):
+		CodeContextViewPage.__init__(self)
 		self.cur_query = ''
 		self.cvp_cv_openedFile = False
-		
-		self.cv_font = "Monospace,10,-1,5,50,0,0,0,0,0"
+		self.cv_font = "Monospace,9,-1,5,50,0,0,0,0,0"
 
-		self.cvp.cv.sig_dblclick.connect(self.contextViewPage_openfile)
-		self.cvp.resv.sig_result_view_openfile.connect(self.resultViewPage_openfile)
+		self.cv.sig_dblclick.connect(self.contextViewPage_openfile)
+		self.resv.sig_result_view_openfile.connect(self.resultViewPage_openfile)
 	
-	def change_ev_font(self, font):
-		if font == self.cv_font:	
-			return
-		self.cv_font = font
-		for inx in range(self.count()):
-			cvp = self.widget(inx)
-			cvp.cv.set_font(self.cv_font)
-
-	def newContextViewPage(self):
-		self.cvp = CodeContextViewPage()
-		self.addTab(self.cvp, 'Context View')
-
-	def set_cur_query(self, text):
+	def is_new_query(self, text):
 		if self.cur_query == text:
 			return False
 		self.cur_query = text
 		return True
 
 	def showResult(self, sym, res):
-		if sym != self.cur_query:
-			return
-		self.cvp.cv.clear()
+		#if sym != self.cur_query:
+		#	return
+		
+		#self.cv.clear()
 			
 		# if queried one, show the file, or, list results.
 		if (len(res) == 1):
-			self.cvp.resv.hide()
+			self.resv.hide()
 			itm = res[0]
-			self.cvp.showFileView(itm[1], itm[2], sym, self.cv_font)
+			self.showFileView(itm[1], itm[2], sym, self.cv_font)
 			self.cvp_cv_openedFile = True
 		else:
-			self.cvp.cv.hide()
-			self.cvp.cv_filetitle.hide()
-			self.cvp.resv.showResultList(sym, res)
-			self.cvp.resv.show()
+			self.cv.hide()
+			self.cv_filetitle.hide()
+			self.resv.showResultList(sym, res)
+			self.resv.show()
 	
 	def contextViewPage_openfile(self):
-		self.cvp.cv.clear()
-		self.sig_codecontext_showfile.emit(self.cvp.filename, int(self.cvp.linenum))
+		self.sig_codecontext_showfile.emit(self.filename, int(self.linenum))
 	
 	def resultViewPage_openfile(self, filename, line):
 		self.sig_codecontext_showfile.emit(filename, int(line))
 			
 	def clear(self):
-		self.cvp.cv_filetitle.clear()
-		self.cvp.resv.clear()
-		self.cvp.cv.clear()
-		self.cvp.cv.hide()
+		print 'calling clear ....'
+		self.cv_filetitle.clear()
+		self.resv.clear()
+		self.cv.clear()
+		#self.cvp.cv.hide()

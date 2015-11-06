@@ -129,6 +129,9 @@ class DirTab(QWidget):
 		self.tdbtn.setMaximumHeight(self.ted.height())
 		self.trbtn.setMaximumHeight(self.ted.height())
 
+#
+# All files list.
+#
 class FileTab(QWidget):
 	sig_show_file = pyqtSignal(str)
 	
@@ -138,6 +141,7 @@ class FileTab(QWidget):
 		self.is_ft = True
 
 		# List view
+		self.lelable = QLabel("File filter")
 		self.le = QLineEdit()
 
 		self.lview = QTreeWidget(self)
@@ -148,7 +152,10 @@ class FileTab(QWidget):
 		self.lview.setAllColumnsShowFocus(True)
 
 		lvlay = QVBoxLayout()
-		lvlay.addWidget(self.le)
+		lhlay = QHBoxLayout()
+		lhlay.addWidget(self.lelable)
+		lhlay.addWidget(self.le)
+		lvlay.addLayout(lhlay)
 		lvlay.addWidget(self.lview)
 		self.setLayout(lvlay)
 
@@ -175,7 +182,7 @@ class FileTab(QWidget):
 	def lview_itemActivated(self, item):
 		filename = str(item.data(1, Qt.DisplayRole).toString())
 		if self.is_rel_path:
-			filename = filename.replace("...", dir_prefix, 1)
+			filename = filename.replace("$T", dir_prefix, 1)
 		self.sig_show_file.emit(filename)
 
 	def keyPressEvent(self, ev):
@@ -202,7 +209,7 @@ class FileTab(QWidget):
 			self.is_rel_path = True
 		for f in flist:
 			if self.is_rel_path:
-				f =  f.replace(dir_prefix, "TOP", 1)
+				f =  f.replace(dir_prefix, "$T", 1)
 			item = QTreeWidgetItem([os.path.basename(f), f])
 			self.lview.addTopLevelItem(item)
 			#if (self.lview.topLevelItemCount() > 0):
@@ -211,6 +218,9 @@ class FileTab(QWidget):
 		self.lview.sortByColumn(0, Qt.AscendingOrder)
 		self.lview.resizeColumnToContents(0)
 
+#
+# Project file tree.
+#
 class FileTree(QTabWidget):
 	sig_show_file = pyqtSignal(str)
 	

@@ -17,8 +17,12 @@ from PyQt4.QtCore import *
 # Loading ktexteditor.
 #
 try:
-	from PyKDE4 import ktexteditor
+	from PyKDE4.ktexteditor import *
 	from PyKDE4.kdecore import KGlobal, KUrl, i18n
+	
+	from PyKDE4.kdecore import *
+	from PyKDE4.kdeui import *
+	from PyKDE4.kparts import *
 
 	seascope_editor_tab_width = None
 	try:
@@ -33,17 +37,28 @@ except ImportError as e:
 	raise ImportError
 
 
-class EditorViewBase(QWidget):
+class EditorViewBase(QSplitter):
 	def __init__(self, parent=None):
-		QWidget.__init__(self)
-		self.__editor = ktexteditor.KTextEditor.EditorChooser.editor() 
-		self.edconfig = self.__editor.readConfig()
-		self.doc = self.__editor.createDocument(self)
-		self.edit = self.doc.createView(self)
+		QSplitter.__init__(self)
+		#self.__editor = KTextEditor.EditorChooser.editor()
+		#self.doc = self.__editor.createDocument(self)
+		#self.edit = self.doc.createView(self)
 		
+		
+		#self.confIF.setConfigValue(self, "line-number", True)
+		
+		#self.confIF.setConfigValue(self.edit, "line-number", true)
+		
+		factory = KLibLoader.self().factory("katepart")
+		self.doc = factory.create(self, "KatePart")
+		self.edit = self.doc.widget()
+		#self.confIF = super(KTextEditor.ConfigInterface, self.edit)
+		self.addWidget(self.edit)
+
+
+		#self.__editor.configDialog(self)
 
 class EditorView(EditorViewBase):
-	ev_popup = None
 	sig_text_selected = pyqtSignal(str)
 	cursorPositionChanged = pyqtSignal(int, int)
 	def __init__(self, parent=None):
@@ -69,29 +84,14 @@ class EditorView(EditorViewBase):
 	def toggle_folds_cb(self):
 		print 'all folds open up.'
 		
-	def codemark_add(self, line):
-		print 'add code mark with line'
-		print line
-
-	def codemark_del(self, line):
-		print 'del code mark with line'
-		print line
-
-	def goto_marker(self, is_next):
-		if is_next:
-			print 'find marker next'
-		else:
-			print 'find marker prev'
 
 	def open_file(self, filename):
 		self.fileurl = "file://"
 		self.fileurl += filename
 		self.doc.openUrl(KUrl(self.fileurl))
-		self.filename = filename
-		self.edit.resize(900, 500)
+		self.filename = filename    
 		self.edit.setFocus()
 		
-
 	def refresh_file(self, filename):
 		self.open_file(self, filename)
 
@@ -100,15 +100,7 @@ class EditorView(EditorViewBase):
 			line = 1
 			
 		line = nline - 1
-		self.edit.setCursorPosition(ktexteditor.KTextEditor.Cursor(line, 0))
-
-	def contextMenuEvent(self, ev):
-		if not EditorView.ev_popup:
-			return
-		f = EditorView.ev_popup.font()
-		EditorView.ev_popup.setFont(QFont("San Serif", 8))
-		EditorView.ev_popup.exec_(QCursor.pos())
-		EditorView.ev_popup.setFont(f)
+		self.edit.setCursorPosition(KTextEditor.Cursor(line, 0))
 	
 	#
 	# Context view event.
@@ -132,7 +124,7 @@ class EditorView(EditorViewBase):
 			ncolumn = column
 		else :
 			ncolumn = column - 1 
-		setCursorPosition(ktexteditor.KTextEditor.Cursor(nline, ncolumn))
+		self.edit.setCursorPosition(KTextEditor.Cursor(nline, ncolumn))
 		
 	def selectedText(self):
 		return self.edit.selectionText()
@@ -149,7 +141,7 @@ class EditorView(EditorViewBase):
 	
 	def lines(self):
 		return self.doc.lines()
-
+    
 	def codemark_add(self, line):
 		self.markerAdd(line, self.codemark_marker)
 
@@ -172,3 +164,6 @@ class EditorView(EditorViewBase):
 		cursor = view.cursorPositionVirtual()
 		self.cursorPositionChanged.emit(cursor.line() + 1, cursor.column() + 1)
 		
+	def isModified(self):
+		return self.doc.isModified()
+

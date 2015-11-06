@@ -1,0 +1,6 @@
+#!/bin/sh
+
+cd /run/media/playpeng/Devel/CodeWorkSpace/Seascope/SourceScope/src
+./SourceScope.py
+
+

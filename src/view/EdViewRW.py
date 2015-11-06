@@ -12,7 +12,7 @@ from PyQt4 import QtGui
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from EdView import *
+from EdViewSci import EditorView
 from EdPage import *
 from EdBook import *
 

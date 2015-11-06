@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+# Copyright (c) 2014 Binghoo Dang
 # Copyright (c) 2010 Anil Kumar
 # All rights reserved.
 #
@@ -34,6 +35,9 @@ except ImportError:
 def msg_box(msg):
 	QMessageBox.warning(None, "Seascope", msg, QMessageBox.Ok)
 
+#
+# back-end dialog when new project creating
+#
 class BackendChooserDialog(QDialog):
 	def __init__(self):
 		QDialog.__init__(self)
@@ -65,6 +69,9 @@ class BackendChooserDialog(QDialog):
 			return bname
 		return None
 
+#
+# PopUP Query UI.
+#
 class QueryUiHelper:
 	def __init__(self):
 		self.edit_book = None
@@ -360,13 +367,17 @@ class QueryUi(QObject):
 			return
 		sig_res.connect(self.qui_h.file_view_update)
 
+#
+#  Main App window
+#
+#
 class SeascopeApp(QMainWindow):
 
 	def file_preferences_cb(self):
 		ev_font = QFont()
 		ev_font.fromString(self.edit_book.ev_font)
-		res = DialogManager.show_preferences_dialog(self.app_style, self.edit_ext_cmd, ev_font, self.exit_dont_ask, self.inner_editing, self.eb_is_show_line)
-		(self.app_style, self.app_font, self.edit_ext_cmd, ev_font, self.exit_dont_ask, self.inner_editing_conf, self.eb_is_show_line) = res
+		res = DialogManager.show_preferences_dialog(self.app_style, self.edit_ext_cmd, ev_font, self.exit_dont_ask, self.eb_is_show_line)
+		(self.app_style, self.app_font, self.edit_ext_cmd, ev_font, self.exit_dont_ask, self.eb_is_show_line) = res
 		if self.edit_ext_cmd != None:
 			self.edit_ext_cmd = str(self.edit_ext_cmd).strip()
 		if (self.edit_ext_cmd == None or self.edit_ext_cmd == ''):
@@ -387,9 +398,7 @@ class SeascopeApp(QMainWindow):
 			if ret == 2:
 				self.exit_dont_ask = True
 
-		# extra proc for editing enabled
-		if self.inner_editing:
-			self.edit_book.close_all_cb()
+		self.edit_book.close_all_cb()
 
 		self.app_write_config()
 		if backend.proj_is_open():
@@ -485,32 +494,29 @@ class SeascopeApp(QMainWindow):
 
 	def show_dbg_dialog(self):
 		DebugView.show_dbg_dialog(self)
-
-	def create_mbar(self):
+		
+	def create_mbar(self):	
 		menubar = self.menuBar()
-
 		m_file = menubar.addMenu('&File')
 		m_file.addAction('&Preferences', self.file_preferences_cb)
 		m_file.addAction('&Debug', self.show_dbg_dialog, 'Ctrl+D')
 		m_file.addSeparator()
-		if self.inner_editing:
-			m_file.addAction('&Save', self.edit_book.save_current_page, 'Ctrl+S')
+		m_file.addAction('&Save', self.edit_book.save_current_page, 'Ctrl+S')
 		m_file.addAction('&Close', self.file_close_cb, QKeySequence.Close)
 		m_file.addSeparator()
 		m_file.addAction('&Restart', self.file_restart_cb, QKeySequence.Quit)
 		m_file.addAction('&Quit', self.close, QKeySequence.Quit)
 
 		m_edit = menubar.addMenu('&Edit')
-		
-		if self.inner_editing:
-			m_edit.addAction('Undo', self.edit_book.undo_edit_cb, 'Ctrl+Z')
-			m_edit.addAction('Rebo', self.edit_book.redo_edit_cb, 'Ctrl+Y')
-			m_edit.addSeparator()
+
+		m_edit.addAction('Undo', self.edit_book.undo_edit_cb, 'Ctrl+Z')
+		m_edit.addAction('Rebo', self.edit_book.redo_edit_cb, 'Ctrl+Y')
+		m_edit.addSeparator()
 		m_edit.addAction('Copy', self.edit_book.copy_edit_cb, 'Ctrl+C')
-		if self.inner_editing:
-			m_edit.addAction('Paste', self.edit_book.paste_edit_cb, 'Ctrl+V')
-			m_edit.addAction('Cut', self.edit_book.cut_edit_cb, 'Ctrl+X')
-		m_edit.addSeparator()	
+
+		m_edit.addAction('Paste', self.edit_book.paste_edit_cb, 'Ctrl+V')
+		m_edit.addAction('Cut', self.edit_book.cut_edit_cb, 'Ctrl+X')
+		m_edit.addSeparator()
 
 		m_edit.addAction('&Find...', self.edit_book.find_cb, 'Ctrl+F')
 		m_edit.addAction('Find &Next', self.edit_book.find_next_cb, 'F3')
@@ -527,9 +533,9 @@ class SeascopeApp(QMainWindow):
 		self.edit_book.m_show_folds = m_edit.addAction('Show folds', self.edit_book.show_folds_cb)
 		self.edit_book.m_show_folds.setCheckable(True)
 		self.toggle_folds = m_edit.addAction('Toggle folds', self.edit_book.toggle_folds_cb)
-		
+
 		m_edit.addSeparator()
-                m_edit.addAction('Refresh file', self.edit_book.refresh_file_cb, 'F5')
+		m_edit.addAction('Refresh file', self.edit_book.refresh_file_cb, 'F5')
 		m_edit.addAction('Matching brace', self.edit_book.matching_brace_cb, 'Ctrl+6')
 		m_edit.addAction('Goto line', self.edit_book.goto_line_cb, 'Ctrl+G')
 		m_edit.addAction('External editor', self.external_editor_cb, 'Ctrl+E');
@@ -538,7 +544,7 @@ class SeascopeApp(QMainWindow):
 		m_prj.addAction('&New Project', self.proj_new_cb)
 		m_prj.addAction('&Open Project', self.proj_open_cb)
 		m_prj.addSeparator()
-		
+
 		act = m_prj.addAction('&Settings', self.proj_settings_cb)
 		act.setDisabled(True)
 		self.qui.prj_actions.append(act)
@@ -567,58 +573,60 @@ class SeascopeApp(QMainWindow):
 		m_go.addSeparator()
 		m_go.addAction('Search file list', self.go_search_file_list_cb, 'Ctrl+Shift+O')
 		m_go.addAction('Search ctags', self.go_search_ctags_cb, 'Ctrl+Shift+T')
-		
+
 		m_help = menubar.addMenu('&Help')
-		m_help.addAction('About Seascope', self.help_about_cb)
+		m_help.addAction('About SourceScope', self.help_about_cb)
 		m_help.addAction('About Qt', QApplication.aboutQt)
+		
+	def get_icon(self, icon_name):
+		iconPath = 'icons/default'
+		iconPath += '/'
+		iconPath += icon_name
+		return QIcon(iconPath)
+		
 
 	def create_toolbar(self):
 		self.toolbar = self.addToolBar('Toolbar')
-		self.toolbar.setIconSize(QSize(16,16))
+		self.toolbar.setIconSize(QSize(20,20))
 		self.toolbar.setToolButtonStyle(Qt.ToolButtonIconOnly)
-
-		si = QApplication.style().standardIcon
-		#(QStyle.SP_DirClosedIcon)
-
+		
 		# exit
-		self.toolbar.addAction(si(QStyle.SP_TitleBarCloseButton), 'Quit', self.close)
+		self.toolbar.addAction(self.get_icon('exit.png'), 'Quit', self.close)
 
 		# edit related
-		# if need editing support
-		if self.inner_editing:
-			self.toolbar.addSeparator()
-			self.toolbar.addAction(si(QStyle.SP_DialogSaveButton), 'Save', self.edit_book.save_current_page)
-			self.toolbar.addSeparator()
-			self.toolbar.addAction(QIcon('icons/undo.png'), 'Undo', self.edit_book.undo_edit_cb)
-			self.toolbar.addAction(QIcon('icons/redo.png'), 'Redo', self.edit_book.redo_edit_cb)
-			self.toolbar.addSeparator()
-			self.toolbar.addAction(QIcon('icons/cut.png'), 'Cut', self.edit_book.cut_edit_cb)
-			self.toolbar.addAction(QIcon('icons/copy.png'), 'Copy', self.edit_book.copy_edit_cb)
-			self.toolbar.addAction(QIcon('icons/paste.png'), 'Paste', self.edit_book.paste_edit_cb)
-			self.toolbar.addSeparator()
-			self.toolbar.addAction(QIcon('icons/find-replace.png'), 'Find & Replace', self.edit_book.find_cb)
+		self.toolbar.addSeparator()
+		self.toolbar.addAction(self.get_icon('save.png'), 'Save', self.edit_book.save_current_page)
+		self.toolbar.addSeparator()
+		self.toolbar.addAction(self.get_icon('undo.png'), 'Undo', self.edit_book.undo_edit_cb)
+		self.toolbar.addAction(self.get_icon('redo.png'), 'Redo', self.edit_book.redo_edit_cb)
+		self.toolbar.addSeparator()
+		self.toolbar.addAction(self.get_icon('cut.png'), 'Cut', self.edit_book.cut_edit_cb)
+		self.toolbar.addAction(self.get_icon('copy.png'), 'Copy', self.edit_book.copy_edit_cb)
+		self.toolbar.addAction(self.get_icon('paste.png'), 'Paste', self.edit_book.paste_edit_cb)
+		self.toolbar.addSeparator()
+		self.toolbar.addAction(self.get_icon('find-replace.png'), 'Find & Replace', self.edit_book.find_cb)
 
 		# find 
 		self.toolbar.addSeparator()
-		self.toolbar.addAction(si(QStyle.SP_FileDialogContentsView), 'Find', self.edit_book.find_cb)
-		self.toolbar.addAction(si(QStyle.SP_ArrowDown), 'Find Next', self.edit_book.find_next_cb)
-		self.toolbar.addAction(si(QStyle.SP_ArrowUp), 'Find Previous', self.edit_book.find_prev_cb)
+		self.toolbar.addAction(self.get_icon('find.png'), 'Find', self.edit_book.find_cb)
+		self.toolbar.addAction(self.get_icon('find-next.png'), 'Find Next', self.edit_book.find_next_cb)
+		self.toolbar.addAction(self.get_icon('find-prev.png'), 'Find Previous', self.edit_book.find_prev_cb)
 		self.toolbar.addSeparator()
 		# goto
-		self.toolbar.addAction(QIcon('icons/go-jump.png'), 'Go to line', self.edit_book.goto_line_cb)
+		self.toolbar.addAction(self.get_icon('go-to-line.png'), 'Go to line', self.edit_book.goto_line_cb)
 		self.toolbar.addSeparator()
 
 		# code view
-		self.toolbar.addAction(si(QStyle.SP_FileDialogListView), 'Search ctags', self.go_search_ctags_cb)
-		self.toolbar.addAction(si(QStyle.SP_FileDialogDetailedView), 'Search file list', self.go_search_file_list_cb)
+		self.toolbar.addAction(self.get_icon('search-ctags.png'), 'Search ctags', self.go_search_ctags_cb)
+		self.toolbar.addAction(self.get_icon('search-files.png'), 'Search file list', self.go_search_file_list_cb)
 		self.toolbar.addSeparator()
-		self.toolbar.addAction(si(QStyle.SP_MediaSeekBackward), 'Previous Result', self.go_prev_res_cb)
-		self.toolbar.addAction(si(QStyle.SP_MediaSeekForward), 'Next Result', self.go_next_res_cb)
+		self.toolbar.addAction(self.get_icon('result-prev.png'), 'Previous Result', self.go_prev_res_cb)
+		self.toolbar.addAction(self.get_icon('result-next.png'), 'Next Result', self.go_next_res_cb)
 		self.toolbar.addSeparator()
-		self.toolbar.addAction(si(QStyle.SP_MediaSkipBackward), 'Previous Position', self.go_prev_pos_cb)
-		self.toolbar.addAction(si(QStyle.SP_MediaSkipForward), 'Next Position', self.go_next_pos_cb)
+		self.toolbar.addAction(self.get_icon('pos-prev.png'), 'Previous Position', self.go_prev_pos_cb)
+		self.toolbar.addAction(self.get_icon('pos-next.png'), 'Next Position', self.go_next_pos_cb)
 		self.toolbar.addSeparator()
-		self.code_ctx_view_act = self.toolbar.addAction(QIcon('icons/codeview.png'), 'Code Quick View', self.code_ctx_view_act_cb)
+		self.code_ctx_view_act = self.toolbar.addAction(self.get_icon('context.png'), 'Code Quick View', self.code_ctx_view_act_cb)
 		self.code_ctx_view_act.setCheckable(True)
 		self.code_ctx_view_act.setChecked(self.is_show_code_ctx_view)
 	
@@ -634,8 +642,6 @@ class SeascopeApp(QMainWindow):
 		self.app_font = None
 		self.ev_font = None
 		self.exit_dont_ask = False
-		self.inner_editing_conf = False
-		self.inner_editing = False
 		self.is_show_toolbar = False
 		self.is_show_code_ctx_view = False
 		self.edit_ext_cmd = 'x-terminal-emulator -e vim %F +%L'
@@ -672,15 +678,6 @@ class SeascopeApp(QMainWindow):
 			if (key == 'exit_dont_ask'):
 				if ('true' == line[1].split('\n')[0]):
 					self.exit_dont_ask = True
-			if (key == 'inner_editing'):
-				if ('true' == line[1].split('\n')[0]):
-					self.inner_editing_conf = True
-				else:
-					self.inner_editing_conf = False
-			if os.getenv("SEASCOPE_EDIT"):
-				self.inner_editing = True
-			else:
-				self.inner_editing = self.inner_editing_conf
 		cf.close()
 
 	def app_write_config(self):
@@ -692,10 +689,6 @@ class SeascopeApp(QMainWindow):
 			cf.write('app_font' + '=' + self.app_font + '\n')
 		if (self.ev_font):
 			cf.write('edit_font' + '=' + self.ev_font + '\n')
-		if (self.inner_editing_conf):
-			cf.write('inner_editing' + '=' + 'true' + '\n')
-		else:
-			cf.write('inner_editing' + '=' + 'false' + '\n')
 		if (self.eb_is_show_line):
 			cf.write('edit_show_line_num' + '=' + 'true' + '\n')
 		if (self.is_show_toolbar):
@@ -859,15 +852,12 @@ class SeascopeApp(QMainWindow):
 		proj_path = backend.proj_dir()
 		self.update_recent_projects(proj_path)
 		self.app_gui_state_save(proj_path)
-		self.setWindowTitle("Seascope")
+		self.setWindowTitle("SourceScope")
 
 		backend.proj_close()
 		self.qui.reset()
 
-		if self.inner_editing:
-			self.edit_book.close_all_cb()
-		else:
-			self.edit_book.clear()
+		self.edit_book.close_all_cb()
 
 		self.res_book.clear()
 		self.file_view.clear()
@@ -892,14 +882,14 @@ class SeascopeApp(QMainWindow):
 					break
 			title = os.path.relpath(prj_dir, parent)
 		if not prj_dir:
-			title = 'Seascope'
+			title = 'SourceScope'
 		if fname and fname != '':
 			fname = str(fname)
 			#if fname.startswith(prj_dir):
 				#fname = os.path.relpath(fname, prj_dir)
 			title = title + ' - ' + fname
 		else:
-			fname = 'Seascope'
+			fname = 'SourceScope'
 			title = title + ' - ' + fname
 		self.setWindowTitle(title)
 
@@ -916,9 +906,9 @@ class SeascopeApp(QMainWindow):
 	def code_ctx_view_act_cb(self):
 		self.is_show_code_ctx_view = self.code_ctx_view_act.isChecked()
 		if self.is_show_code_ctx_view:
-			self.code_ctx_view.show()
+			self.ctxDoc.show()
 		else:
-			self.code_ctx_view.hide()
+			self.ctxDoc.hide()
 
 	def connect_signals(self):
 		self.edit_book.sig_history_update.connect(self.res_book.history_update)
@@ -932,7 +922,8 @@ class SeascopeApp(QMainWindow):
 		
 	def editor_text_selected(self, text):
 		if self.is_show_code_ctx_view:
-			if not self.code_ctx_view.set_cur_query(text):
+			# check if we are doing new query.
+			if not self.code_ctx_view.is_new_query(text):
 				return
 			rquery = {}
 			rquery['cmd'] = 'DEF'
@@ -947,33 +938,67 @@ class SeascopeApp(QMainWindow):
 	def code_context_showfile_cb(self, filename, line):
 		self.show_file_line(filename, line)
 
+	def create_widgets(self):
+		self.qui_h = QueryUiHelper()
+		self.qui = QueryUi(self.qui_h)
+
+		# editor book
+		self.edit_book = EdBook.EditorBook()
+		self.setCentralWidget(self.edit_book)
+		
+		# result manager
+		self.resultDoc = QDockWidget("Result Manager")
+		dockflag = self.resultDoc.features()
+		dockflag  &= ~QDockWidget.DockWidgetClosable
+		dockflag |= QDockWidget.DockWidgetMovable
+		self.resultDoc.setFeatures(dockflag)
+		self.res_book  = ResView.ResultManager()
+		self.resultDoc.setWidget(self.res_book)
+		
+		# files view Dock.
+		self.filesDoc = QDockWidget("Project Files")
+		dockflag = self.filesDoc.features()
+		dockflag  &= ~QDockWidget.DockWidgetClosable
+		dockflag |= QDockWidget.DockWidgetMovable
+		self.filesDoc.setFeatures(dockflag)
+		self.file_view = FileView.FileTree(self.filesDoc)
+		self.filesDoc.setWidget(self.file_view)
+		
+		# context view dock
+		self.ctxDoc = QDockWidget("Code Contex")
+		dockflag = self.ctxDoc.features()
+		dockflag  &= ~QDockWidget.DockWidgetClosable
+		dockflag |= QDockWidget.DockWidgetMovable
+		self.ctxDoc.setFeatures(dockflag)
+		self.code_ctx_view = CodeContextView.CodeContextViewManager()
+		self.ctxDoc.setWidget(self.code_ctx_view)
+		if not self.is_show_code_ctx_view:
+			self.ctxDoc.hide()
+		
+		# code mark manager.
+		self.cm_mgr    = CodemarkView.CodemarkManager()
+		
+		# statusBar and menubar.
+		self.sbar = self.statusBar()
+		self.create_mbar()
+		if self.is_show_toolbar:
+			self.create_toolbar()
+
 	def setup_widget_tree(self):
 		self.hsp = QSplitter();
 		self.hsp.addWidget(self.edit_book)
-		self.hsp.addWidget(self.file_view)
 		self.hsp.setSizes([700, 1])
 
-		self.vsp = QSplitter();
-		self.vsp.setOrientation(Qt.Vertical)
-		self.vsp.addWidget(self.hsp)
-		self.vsp.addWidget(self.res_book)
-		self.hsp_res = QSplitter();
+		self.addDockWidget(Qt.RightDockWidgetArea, self.filesDoc)
+		self.filesDoc.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
 		
+		self.addDockWidget(Qt.BottomDockWidgetArea, self.ctxDoc)
+		self.addDockWidget(Qt.BottomDockWidgetArea, self.resultDoc)
 		
-		self.hsp_res.addWidget(self.code_ctx_view)
-		self.hsp_res.addWidget(self.res_book)
+		self.setCentralWidget(self.hsp)
+		self.setWindowTitle('SourceScope')
 
-		self.vsp.addWidget(self.hsp_res)
-		
-		self.hsp_res.setSizes([200, 1])
-		self.vsp.setSizes([1, 60])
-		
-		self.setCentralWidget(self.vsp)
-		self.setWindowTitle('Seascope')
-		self.setGeometry(300, 100, 800, 600)
-		#self.showMaximized()
-
-		QApplication.setWindowIcon(QIcon('icons/seascope.svg'))
+		QApplication.setWindowIcon(QIcon('icons/SourceScope.png'))
 
 		# update checked menu item
 		self.edit_book.is_show_line = self.eb_is_show_line
@@ -983,32 +1008,10 @@ class SeascopeApp(QMainWindow):
 			self.code_ctx_view.ev_font = self.ev_font
 		self.show_toolbar.setChecked(self.is_show_toolbar)
 
-	def create_widgets(self):
-		self.qui_h = QueryUiHelper()
-		self.qui = QueryUi(self.qui_h)
-
-		if self.inner_editing:
-			self.edit_book = EdViewRW.EditorBookRW()
-		else:
-			self.edit_book = EdBook.EditorBook()
-
-		self.res_book  = ResView.ResultManager()
-		self.file_view = FileView.FileTree()
-		self.cm_mgr    = CodemarkView.CodemarkManager()
-		self.code_ctx_view = CodeContextView.CodeContextViewManager()
-		self.code_ctx_view.hide()
-
-		self.sbar = self.statusBar()
-		self.create_mbar()
-		
-		if self.is_show_toolbar:
-			self.create_toolbar()
 
 	def setup_widget_hints(self):
-		if self.inner_editing:
-			EdViewRW.EditorView.ev_popup = self.backend_menu
-		else:
-			EdView.EditorView.ev_popup = self.backend_menu
+		# editor pop up menu.
+		EdView.EditorView.ev_popup = self.backend_menu
 
 		CallView.CallTreeWindow.parent = self
 		ClassGraphView.ClassGraphWindow.parent = self
